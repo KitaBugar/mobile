@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "164337081957",
+    "project_id": "kitabugar",
+    "storage_bucket": "kitabugar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164337081957:android:e256c636179ea6d7dab08c",
+        "android_client_info": {
+          "package_name": "com.lilitera.kitabugarapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqc-YEQm5zJMmv4tSqkQM9rxnKty2oP4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
