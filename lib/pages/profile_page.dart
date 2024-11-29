@@ -208,8 +208,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         : Text(
                             _nameController.text,
                             style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppPallete.colorTextSecondary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                     const SizedBox(height: 16),
@@ -296,12 +297,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
-                    side: BorderSide(
+                    side: const BorderSide(
                       color: AppPallete.colorBorder,
                     ),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Icon(

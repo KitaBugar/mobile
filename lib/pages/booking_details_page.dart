@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:kitabugar/components/buttons/custom_button.dart';
 import 'package:kitabugar/pages/succes_payment_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
-import 'package:flutter/material.dart';
+import 'package:kitabugar/theme/text_styles.dart';
 
 class BookingDetailsPage extends StatelessWidget {
   const BookingDetailsPage({Key? key}) : super(key: key);
@@ -22,43 +23,84 @@ class BookingDetailsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Booking Details',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-              const Text(
-                'Cek terlebih dahulu detail bookingnya!',
-                style: TextStyle(
-                  color: AppPallete.colorTextSecondary,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildDetailItem('Nama', 'Christian Weber'),
-              _buildDetailItem('Nomor Telepon', '0338161271'),
-              _buildDetailItem('Email', 'christian@gmail.com'),
-              const SizedBox(height: 24),
-              _buildGymPackage(),
-              const SizedBox(height: 24),
-              _buildDetailItem('Booking ID', 'FIT30596'),
-              _buildDetailItem('Subtotal', 'Rp 399.000'),
-              _buildDetailItem('PPN 11%', 'Rp 43.890'),
-              const SizedBox(height: 16),
-              _buildTotalPayment(),
             ],
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Booking Details',
+                      style: TextStyles.heading1
+                          .copyWith(color: AppPallete.colorTextPrimary)),
+                  const Text(
+                    'Cek terlebih dahulu detail bookingnya!',
+                    style: TextStyle(
+                      color: AppPallete.colorTextSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDashedLine(),
+                  _buildDetailItem('Nama', 'Christian Weber'),
+                  _buildDetailItem('Nomor Telepon', '0338161271'),
+                  _buildDetailItem('Email', 'christian@gmail.com'),
+                  _buildDashedLine(),
+                  const SizedBox(height: 24),
+                  _buildGymPackage(),
+                  const SizedBox(height: 24),
+                  _buildDashedLine(),
+                  _buildDetailItem('Booking ID', 'FIT30596'),
+                  _buildDetailItem('Subtotal', 'Rp 399.000'),
+                  _buildDetailItem('PPN 11%', 'Rp 43.890'),
+                  const SizedBox(height: 16),
+                  _buildTotalPayment(),
+                ],
+              ),
+            ),
           ),
         ),
       ),
       bottomNavigationBar: _buildBottomButton(context),
+    );
+  }
+
+  Widget _buildDashedLine() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Row(
+            children: List.generate(
+              (constraints.maxWidth / 10).floor(),
+              (index) => const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -91,7 +133,7 @@ class BookingDetailsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFE1F2E0),
+        color: const Color(0xFFE1F2E0),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -109,7 +151,7 @@ class BookingDetailsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               Text(
@@ -137,7 +179,7 @@ class BookingDetailsPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFDEF3F9),
+        color: const Color(0xFFDEF3F9),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

@@ -5,6 +5,7 @@ import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:kitabugar/theme/text_styles.dart';
 
 class GymDetailPage extends StatefulWidget {
   const GymDetailPage({Key? key}) : super(key: key);
@@ -99,32 +100,23 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'The Old House Gym',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      Text('The Old House Gym',
+                          style: TextStyles.body1
+                              .copyWith(color: AppPallete.colorTextPrimary)),
                       Row(
-                        children: const [
+                        children: [
                           Icon(Icons.location_on,
                               size: 16, color: AppPallete.colorPrimary),
                           SizedBox(width: 4),
-                          Text(
-                            'Cirebon',
-                            style: TextStyle(color: AppPallete.colorPrimary),
-                          ),
+                          Text('Cirebon',
+                              style: TextStyles.body3
+                                  .copyWith(color: AppPallete.colorPrimary)),
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Fasilitas Tersedia',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      Text('Fasilitas Tersedia',
+                          style: TextStyles.body4
+                              .copyWith(color: AppPallete.colorTextPrimary)),
                       const SizedBox(height: 16),
                       _buildFacilities(),
                       const SizedBox(height: 24),
@@ -184,7 +176,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   ),
                 ],
               ),
-              child: CustomElevatedButton(
+              child: const CustomElevatedButton(
                 buttonText: 'Berlangganan Sekarang',
                 navigateTo:
                     const SubscribePackagePage(), // Halaman yang dinavigasi
@@ -224,10 +216,9 @@ class _GymDetailPageState extends State<GymDetailPage> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Sauna',
-              style: TextStyle(fontSize: 12),
-            ),
+            Text('Sauna',
+                style: TextStyles.body4
+                    .copyWith(color: AppPallete.colorTextPrimary)),
             const Text(
               'Relax Body',
               style: TextStyle(fontSize: 10, color: Colors.grey),
