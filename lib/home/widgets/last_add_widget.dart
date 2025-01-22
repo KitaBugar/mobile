@@ -2,7 +2,7 @@
 import 'package:kitabugar/pages/gym_detail_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';  
 // Pastikan untuk mengimpor halaman GymDetailsPage
 
 class LastAddWidget extends StatelessWidget {
