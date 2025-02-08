@@ -1,11 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:kitabugar/components/buttons/primary_button.dart';
 import 'package:kitabugar/config/navigation_helper.dart';
 import 'package:kitabugar/pages/home_page.dart';
 import 'package:kitabugar/pages/signin_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+
+const String apiUrl = 'https://4be4-180-241-240-149.ngrok-free.app/api/user/login';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,6 +32,60 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  Future<void> _login() async {
+    final String baseUrl = dotenv.env['BASE_URL'] ?? ''; // Ambil BASE_URL dari .env
+    final String apiUrl = '$baseUrl/api/user/login'; // Gunakan BASE_URL untuk API
+
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+
+    // Validasi input
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Email dan Password tidak boleh kosong')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Jika login berhasil, simpan token
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String token = responseData['token']; // Pastikan API mengembalikan token
+
+        // Simpan token ke SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('jwt_token', token);
+
+        // Navigasi ke halaman Home
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseData['message'] ?? 'Email atau Password salah')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +97,6 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              // Header
               Text(
                 'Masuk',
                 style: TextStyles.heading1.copyWith(
@@ -141,22 +200,16 @@ class _LoginPageState extends State<LoginPage> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle Login
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()));
-                  },
+                  onPressed: _login, // Panggil fungsi login
                   style: ButtonStyle(
                     backgroundColor:
-                        WidgetStateProperty.all(AppPallete.colorPrimary),
-                    shape: WidgetStateProperty.all(
+                        MaterialStateProperty.all(AppPallete.colorPrimary),
+                    shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    elevation: WidgetStateProperty.all(0),
+                    elevation: MaterialStateProperty.all(0),
                   ),
                   child: Text('Login',
                       style: TextStyles.body1.copyWith(
@@ -175,16 +228,16 @@ class _LoginPageState extends State<LoginPage> {
                     // Handle Google Sign In
                   },
                   style: ButtonStyle(
-                    side: WidgetStateProperty.all(
+                    side: MaterialStateProperty.all(
                       const BorderSide(color: AppPallete.colorBorder, width: 1),
                     ),
-                    shape: WidgetStateProperty.all(
+                    shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     backgroundColor:
-                        WidgetStateProperty.all(AppPallete.colorWhite),
+                        MaterialStateProperty.all(AppPallete.colorWhite),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

@@ -43,7 +43,6 @@ dependencies:
   carousel_slider: ^5.0.0
   dots_indicator: ^3.0.0
   http: ^1.2.2
-  xendit: ^0.0.25
   webview_flutter: ^4.10.0
   intl: ^0.20.1
   flutter_native_splash: ^2.4.2
@@ -54,6 +53,8 @@ dependencies:
   google_sign_in: ^6.2.1
   image_picker: ^1.1.2
   icons_launcher: ^3.0.0
+  shared_preferences: ^2.5.1
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +95,7 @@ flutter:
     - assets/images/icons/
     - assets/images/photos/
     - assets/images/thumbnails/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

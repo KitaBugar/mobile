@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kitabugar/api/api_service.dart'; // Pastikan Anda memiliki ApiService
 import 'package:kitabugar/components/buttons/custom_button.dart'; // Pastikan file ini ada
 import 'package:kitabugar/pages/succes_payment_page.dart';
-// import 'package:kitabugar/pages/success_payment_page.dart'; // Pastikan file ini ada
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
+import 'package:image_picker/image_picker.dart'; // Untuk memilih gambar
 
 class BookingDetailsPage extends StatefulWidget {
   const BookingDetailsPage({Key? key}) : super(key: key);
@@ -15,6 +15,7 @@ class BookingDetailsPage extends StatefulWidget {
 
 class _BookingDetailsPageState extends State<BookingDetailsPage> {
   final ApiService apiService = ApiService(); // Inisialisasi ApiService
+  XFile? _image; // Untuk menyimpan gambar bukti transfer
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +79,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   _buildDetailItem('PPN 11%', 'Rp 43.890'),
                   const SizedBox(height: 16),
                   _buildTotalPayment(),
+                  const SizedBox(height: 24),
+                  _buildDashedLine(),
+                  _buildBankInfo(), // Menambahkan informasi rekening bank
+                  const SizedBox(height: 16),
+                  _buildUploadButton(), // Menambahkan tombol upload bukti transfer
                 ],
               ),
             ),
@@ -214,6 +220,53 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
+  Widget _buildBankInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Informasi Rekening Bank',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildDetailItem('Bank', 'Bank Mandiri'),
+        _buildDetailItem('Nomor Rekening', '123-456-7890'),
+        _buildDetailItem('Atas Nama', 'Christian Weber'),
+      ],
+    );
+  }
+
+  Widget _buildUploadButton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Upload Bukti Transfer',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+            _image = await picker.pickImage(source: ImageSource.gallery);
+            // Lakukan sesuatu dengan gambar yang diambil
+            if (_image != null) {
+              // Misalnya, simpan gambar atau tampilkan di UI
+              print('Image selected: ${_image!.path}');
+            }
+          },
+          child: const Text('Pilih Gambar'),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBottomButton(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -229,6 +282,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
       child: CustomElevatedButton(
+        navigateTo: const SizedBox(),
         buttonText: 'Berlangganan Sekarang',
         onPressed: () async {
           // Kumpulkan data yang diperlukan untuk dikirim
@@ -259,7 +313,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             );
           }
         },
-        navigateTo: const SizedBox(),
       ),
     );
   }

@@ -2,11 +2,13 @@
 import 'package:kitabugar/pages/gym_detail_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
-import 'package:flutter/material.dart';  
-// Pastikan untuk mengimpor halaman GymDetailsPage
+import 'package:flutter/material.dart';
 
 class LastAddWidget extends StatelessWidget {
-  const LastAddWidget({Key? key}) : super(key: key);
+  final List<dynamic> gyms; // Tambahkan parameter untuk menerima data gym
+
+  const LastAddWidget({Key? key, required this.gyms})
+      : super(key: key); // Tambahkan required
 
   @override
   Widget build(BuildContext context) {
@@ -27,25 +29,23 @@ class LastAddWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _buildGymCard(
-            context, // Tambahkan context di sini
-            'The Old House Gym',
-            'Cirebon',
-            'assets/images/thumbnails/th1.png',
-          ),
-          const SizedBox(height: 16),
-          _buildGymCard(
-            context, // Tambahkan context di sini
-            'Iron Factory Cirebon',
-            'Cirebon',
-            'assets/images/thumbnails/th2.png',
-          ),
+          // Tampilkan gym berdasarkan data yang diterima
+          ...gyms.map((gym) {
+            return _buildGymCard(
+              context,
+              gym['name'],
+              gym['address'],
+              gym['image'] != null && gym['image'].isNotEmpty
+                  ? gym['image'][0]
+                      ['image_url'] // Menggunakan URL gambar dari API
+                  : 'assets/images/thumbnails/default.png', // Gambar default jika tidak ada
+            );
+          }).toList(),
         ],
       ),
     );
   }
 
-  // Tambahkan parameter context agar dapat digunakan untuk navigasi
   Widget _buildGymCard(
       BuildContext context, String name, String location, String assetPath) {
     return InkWell(
@@ -55,7 +55,13 @@ class LastAddWidget extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => GymDetailPage(
-                // gymName: name, // Bisa tambahkan argumen tambahan sesuai kebutuhan
+                gymId: 1,
+                gymName: name,
+                description: '',
+                imageUrl: '',
+                operatingHours: '',
+                address: ''
+                // Tambahkan argumen tambahan sesuai kebutuhan
                 ),
           ),
         );
@@ -80,8 +86,8 @@ class LastAddWidget extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
-                child: Image.asset(
-                  assetPath, // Menggunakan Image.asset untuk gambar lokal
+                child: Image.network(
+                  assetPath, // Menggunakan URL gambar dari API
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -113,81 +119,7 @@ class LastAddWidget extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Fasilitas',
-                        style: TextStyles.body4
-                            .copyWith(color: AppPallete.colorTextPrimary),
-                      ),
-                      Text('Lihat semua',
-                          style: TextStyles.body5
-                              .copyWith(color: AppPallete.colorPrimary)),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: List.generate(
-                      4,
-                      (index) => Expanded(
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: AppPallete.colorPrimary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.hot_tub,
-                                color: AppPallete.colorWhite,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Sauna',
-                              style: TextStyles.body4
-                                  .copyWith(color: AppPallete.colorTextPrimary),
-                            ),
-                            Text(
-                              'Relax Body',
-                              style: TextStyles.body5.copyWith(
-                                  color: AppPallete.colorTextSecondary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppPallete.colorPrimary,
-                        child: Icon(Icons.access_time,
-                            color: Colors.white, size: 16),
-                      ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Opening',
-                            style: TextStyles.body4
-                                .copyWith(color: AppPallete.colorTextPrimary),
-                          ),
-                          Text(
-                            '08:00 - 22:00',
-                            style: TextStyles.body5
-                                .copyWith(color: AppPallete.colorTextSecondary),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  // Tambahkan informasi lainnya sesuai kebutuhan
                 ],
               ),
             ),

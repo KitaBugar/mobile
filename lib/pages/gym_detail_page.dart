@@ -1,4 +1,3 @@
-// gym_detail_page.dart
 import 'package:kitabugar/components/buttons/custom_button.dart';
 import 'package:kitabugar/pages/subscribe_packages_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
@@ -8,21 +7,29 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:kitabugar/theme/text_styles.dart';
 
 class GymDetailPage extends StatefulWidget {
-  const GymDetailPage({Key? key}) : super(key: key);
+  final String gymName;
+  final String description;
+  final String imageUrl;
+  final String operatingHours;
+  final String address;
+  final int gymId;
+
+  const GymDetailPage({
+    Key? key,
+    required this.gymName,
+    required this.description,
+    required this.imageUrl,
+    required this.operatingHours,
+    required this.address,
+    required this.gymId,
+  }) : super(key: key);
 
   @override
   State<GymDetailPage> createState() => _GymDetailPageState();
 }
 
 class _GymDetailPageState extends State<GymDetailPage> {
-  // final CarouselController _carouselController = CarouselController();
   int _currentIndex = 0;
-
-  final List<String> gymImages = [
-    'assets/images/thumbnails/th1.png',
-    'assets/images/thumbnails/th2.png',
-    'assets/images/thumbnails/th3.png',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,6 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   background: Stack(
                     children: [
                       CarouselSlider(
-                        // carouselController: _carouselController,
                         options: CarouselOptions(
                           height: double.infinity,
                           viewportFraction: 1.0,
@@ -60,10 +66,10 @@ class _GymDetailPageState extends State<GymDetailPage> {
                             });
                           },
                         ),
-                        items: gymImages.map((image) {
+                        items: [widget.imageUrl].map((image) {
                           return Builder(
                             builder: (BuildContext context) {
-                              return Image.asset(
+                              return Image.network(
                                 image,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
@@ -78,8 +84,8 @@ class _GymDetailPageState extends State<GymDetailPage> {
                         left: 0,
                         right: 0,
                         child: DotsIndicator(
-                          dotsCount: gymImages.length,
-                          position: _currentIndex,
+                          dotsCount: 1, // Hanya satu gambar
+                          position: _currentIndex, // Pastikan ini adalah int
                           decorator: DotsDecorator(
                             color: AppPallete.colorWhite,
                             activeColor: AppPallete.colorPrimary,
@@ -100,7 +106,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('The Old House Gym',
+                      Text(widget.gymName,
                           style: TextStyles.body1
                               .copyWith(color: AppPallete.colorTextPrimary)),
                       Row(
@@ -108,7 +114,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                           Icon(Icons.location_on,
                               size: 16, color: AppPallete.colorPrimary),
                           SizedBox(width: 4),
-                          Text('Cirebon',
+                          Text(widget.address,
                               style: TextStyles.body3
                                   .copyWith(color: AppPallete.colorPrimary)),
                         ],
@@ -128,30 +134,18 @@ class _GymDetailPageState extends State<GymDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Largest gym in Indonesia, top-tier facilities, premiu kjdjhdjhdasjdf kjdsfjhsdjfhsdjkfjhsdjhfjsdjds jkdsfmskdfjsdf fjsdfjsdfsmenities, and nationwide access to all gym location',
+                      Text(
+                        widget.description,
                         style: TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 24),
                       _buildInfoSection(
                         icon: Icons.access_time,
                         title: 'Opening',
-                        subtitle: '08:00 - 22:00',
+                        subtitle: widget.operatingHours,
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoSection(
-                        icon: Icons.person,
-                        title: 'Lili Marlini',
-                        subtitle: '083-834-767-667',
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoSection(
-                        icon: Icons.location_on,
-                        title: 'Alamat Lengkap',
-                        subtitle:
-                            'Jalan Cihampelas Walk No. 123, Bandung 40114, Indonesia.',
-                      ),
-                      // Add padding at bottom for the fixed button
+                      // Add more info sections as needed
                       const SizedBox(height: 80),
                     ],
                   ),
@@ -176,11 +170,17 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   ),
                 ],
               ),
-              child: const CustomElevatedButton(
-                buttonText: 'Berlangganan Sekarang',
-                navigateTo:
-                    const SubscribePackagePage(), // Halaman yang dinavigasi
-                textColor: Colors.white, // Opsional: warna teks
+              child: ElevatedButton(
+                onPressed: () {
+                  print('Gym ID: ${widget.gymId}');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SubscribePackagePage(gymId: widget.gymId), // Gunakan widget.gymId
+                    ),
+                  );
+                },
+                child: const Text('Pilih Paket Langganan'),
               ),
             ),
           ),
@@ -190,6 +190,9 @@ class _GymDetailPageState extends State<GymDetailPage> {
   }
 
   Widget _buildFacilities() {
+    // Replace with actual facilities data if available
+    final facilities = ['Sauna', 'Gym', 'Swimming Pool', 'Yoga'];
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -199,7 +202,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
         crossAxisSpacing: 1,
         mainAxisSpacing: 1,
       ),
-      itemCount: 6,
+      itemCount: facilities.length,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -216,7 +219,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
               ),
             ),
             const SizedBox(height: 4),
-            Text('Sauna',
+            Text(facilities[index],
                 style: TextStyles.body4
                     .copyWith(color: AppPallete.colorTextPrimary)),
             const Text(

@@ -1,3 +1,6 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:kitabugar/api/api_service.dart'; // Impor ApiService
 import 'package:kitabugar/pages/home_page.dart';
 import 'package:kitabugar/pages/login_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
@@ -27,6 +30,54 @@ class _SignInPageState extends State<SignInPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signUp() async {
+    final String name = _nameController.text;
+    final String phone_number = _phoneController.text;
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+
+    // Validasi input
+    if (name.isEmpty || phone_number.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Semua field harus diisi')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiService().baseUrl}/api/user/register'), // Gunakan baseUrl dari ApiService
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'name': name,
+          'phone_number': phone_number,
+          'email': email,
+          'password': password },
+      );
+
+      if (response.statusCode == 201) {
+        // Jika pendaftaran berhasil, navigasi ke halaman Home
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        // Jika pendaftaran gagal, tampilkan pesan kesalahan
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseData['message'] ?? 'Pendaftaran gagal')),
+        );
+      }
+    } catch (error) {
+      // Tampilkan pesan kesalahan jika terjadi kesalahan jaringan
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $error')),
+      );
+    }
   }
 
   @override
@@ -105,8 +156,8 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 initialCountryCode: 'ID',
-                onChanged: (phone) {
-                  print('Nomor Telepon: ${phone.completeNumber}');
+                onChanged: (phone_number) {
+                  print('Nomor Telepon: ${phone_number.completeNumber}');
                 },
               ),
               const SizedBox(height: 16),
@@ -187,13 +238,7 @@ class _SignInPageState extends State<SignInPage> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle Sign In
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()));
-                  },
+                  onPressed: _signUp, // Panggil fungsi pendaftaran
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppPallete.colorPrimary,
                     shape: RoundedRectangleBorder(

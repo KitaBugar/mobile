@@ -82,6 +82,7 @@ class SuccessPaymentPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: CustomElevatedButton(
+                  onPressed: () async {},
                   buttonText: 'Lihat Detail Langganan',
                   navigateTo: const HomePage(), // Halaman yang dinavigasi
                   textColor: AppPallete.colorWhite, // Opsional: warna teks

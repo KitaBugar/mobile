@@ -14,7 +14,7 @@ class CustomElevatedButton extends StatelessWidget {
     required this.buttonText,
     required this.navigateTo,
     this.backgroundColor,
-    this.textColor,
+    this.textColor, required Future<Null> Function() onPressed,
   }) : super(key: key);
 
   @override

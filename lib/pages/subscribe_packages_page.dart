@@ -1,10 +1,55 @@
-import 'package:kitabugar/pages/booking_details_page.dart';
-import 'package:kitabugar/pages/xendit_payment_page.dart';
-import 'package:kitabugar/theme/app_pallete.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:kitabugar/api/api_service.dart';
+import 'package:kitabugar/pages/xendit_payment_page.dart';
+import 'package:intl/intl.dart';
+import 'package:kitabugar/theme/text_styles.dart'; // Impor intl
 
-class SubscribePackagePage extends StatelessWidget {
-  const SubscribePackagePage({Key? key}) : super(key: key);
+class SubscribePackagePage extends StatefulWidget {
+  final int gymId;
+
+  const SubscribePackagePage({Key? key, required this.gymId}) : super(key: key);
+
+  @override
+  _SubscribePackagePageState createState() => _SubscribePackagePageState();
+}
+
+class _SubscribePackagePageState extends State<SubscribePackagePage> {
+  final ApiService apiService = ApiService();
+  List<dynamic> membershipOptions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMembershipOptions();
+  }
+
+  Future<void> _fetchMembershipOptions() async {
+    try {
+      final data = await apiService.getGymDetails(widget.gymId);
+      if (!mounted) return;
+      print('Gym details received: $data');
+
+      if (data['items'] != null) {
+        membershipOptions = data['items']['membership_options'] ?? [];
+      } else {
+        membershipOptions = [];
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching membership options: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,44 +74,32 @@ class SubscribePackagePage extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildPackageCard(
-              context: context,
-              title: 'Card Paket Level Up',
-              subtitle: 'Enjoy all subscribe package benefits',
-              price: 'Rp. 199.000',
-              period: '/ 1 Bulan',
-              benefits: [
-                'Akses bebas ke area gym',
-                'Kelas-kelas pemula (Yoga, Pilates, Cardio)',
-                'Konsultasi dengan pelatih',
-                'Dapatkan Diskon',
-              ],
-              imagePath:
-                  'assets/images/thumbnails/Regular-plan.png', // Add your image asset path
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: membershipOptions.map((option) {
+                  List<String> features =
+                      List<String>.from(json.decode(option['features']));
+
+                  // Format harga
+                  String formattedPrice =
+                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp. ')
+                          .format(option['price']);
+
+                  return _buildPackageCard(
+                    context: context,
+                    title: option['name'],
+                    subtitle: option['description'],
+                    price: formattedPrice, // Gunakan harga yang diformat
+                    period: '/ 1 Bulan',
+                    benefits: features,
+                    imagePath: 'assets/images/thumbnails/Regular-plan.png',
+                  );
+                }).toList(),
+              ),
             ),
-            const SizedBox(height: 16),
-            _buildPackageCard(
-              context: context,
-              title: 'Card Paket Next Level',
-              subtitle: 'Enjoy all subscribe package benefits',
-              price: 'Rp. 299.000',
-              period: '/ 1 Bulan',
-              benefits: [
-                'Semua benefit Level Up',
-                'Akses ke kelas-kelas HIIT, CrossFit',
-                'Penggunaan fasilitas sauna dan kolam renang',
-                'Diskon untuk produk nutrisi',
-              ],
-              imagePath:
-                  'assets/images/thumbnails/super-plan.png', // Add your image asset path
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -98,93 +131,31 @@ class SubscribePackagePage extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 14, right: 14, bottom: 14),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyles.heading2,
                 ),
+                const SizedBox(height: 8),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    color: AppPallete.colorTextSecondary,
-                    fontSize: 14,
-                  ),
+                  style: TextStyles.body2,
                 ),
-                const SizedBox(height: 16),
-                ...benefits.map((benefit) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle,
-                              color: AppPallete.colorPrimary, size: 20),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              benefit,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          price,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          period,
-                          style: TextStyle(
-                            color: AppPallete.colorTextSecondary,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BookingDetailsPage(), // Create your next page
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppPallete.colorPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Langganan',
-                        style: TextStyle(
-                          color: AppPallete.colorWhite,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                Text(
+                  price,
+                  style: TextStyles.heading5,
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  period,
+                  style: TextStyles.body2,
+                ),
+                const SizedBox(height: 8),
+                ...benefits.map((benefit) => Text('• $benefit')).toList(),
               ],
             ),
           ),

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:kitabugar/components/buttons/floating_bottom_navbar.dart';
 import 'package:intl_phone_field/intl_phone_field.dart'; // Make sure you have this package
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 
 // Custom Camera Delegate to handle photo and video capture
 class MyCameraDelegate extends ImagePickerCameraDelegate {
@@ -102,6 +103,15 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _isEditing = false;
     });
+  }
+
+  Future<void> _logout() async {
+    // Menghapus token dari SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token'); // Ganti dengan kunci yang sesuai
+
+    // Navigasi kembali ke halaman login
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -292,11 +302,11 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () {},
+                onPressed: _logout, // Call the logout function
                 style: TextButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(25), // Perbaiki di sini
                     side: const BorderSide(
                       color: AppPallete.colorBorder,
                     ),
@@ -304,7 +314,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.logout,
                       size: 20,
