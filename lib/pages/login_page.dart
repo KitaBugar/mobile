@@ -11,7 +11,8 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 
-const String apiUrl = 'https://4be4-180-241-240-149.ngrok-free.app/api/user/login';
+const String apiUrl =
+    'https://4be4-180-241-240-149.ngrok-free.app/api/user/login';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,8 +34,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    final String baseUrl = dotenv.env['BASE_URL'] ?? ''; // Ambil BASE_URL dari .env
-    final String apiUrl = '$baseUrl/api/user/login'; // Gunakan BASE_URL untuk API
+    final String baseUrl =
+        dotenv.env['BASE_URL'] ?? ''; // Ambil BASE_URL dari .env
+    final String apiUrl =
+        '$baseUrl/api/user/login'; // Gunakan BASE_URL untuk API
 
     final String email = _emailController.text;
     final String password = _passwordController.text;
@@ -62,7 +65,8 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         // Jika login berhasil, simpan token
         final Map<String, dynamic> responseData = json.decode(response.body);
-        String token = responseData['token']; // Pastikan API mengembalikan token
+        String token =
+            responseData['token']; // Pastikan API mengembalikan token
 
         // Simpan token ke SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -76,7 +80,9 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         final Map<String, dynamic> responseData = json.decode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseData['message'] ?? 'Email atau Password salah')),
+          SnackBar(
+              content:
+                  Text(responseData['message'] ?? 'Email atau Password salah')),
         );
       }
     } catch (error) {
@@ -154,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text('Lupa Password?',
                         style: TextStyles.body2.copyWith(
-                          color: AppPallete.colorPrimary,
+                          color: AppPallete.colorWhite,
                         )),
                   ),
                 ],

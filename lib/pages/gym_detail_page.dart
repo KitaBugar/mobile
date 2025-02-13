@@ -1,4 +1,4 @@
-import 'package:kitabugar/components/buttons/custom_button.dart';
+// import 'package:kitabugar/components/buttons/custom_button.dart';
 import 'package:kitabugar/pages/subscribe_packages_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +85,8 @@ class _GymDetailPageState extends State<GymDetailPage> {
                         right: 0,
                         child: DotsIndicator(
                           dotsCount: 1, // Hanya satu gambar
-                          position: _currentIndex, // Pastikan ini adalah int
+                          position: _currentIndex
+                              .toDouble(), // Pastikan ini adalah int
                           decorator: DotsDecorator(
                             color: AppPallete.colorWhite,
                             activeColor: AppPallete.colorPrimary,
@@ -176,7 +177,8 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SubscribePackagePage(gymId: widget.gymId), // Gunakan widget.gymId
+                      builder: (context) => SubscribePackagePage(
+                          gymId: widget.gymId), // Gunakan widget.gymId
                     ),
                   );
                 },

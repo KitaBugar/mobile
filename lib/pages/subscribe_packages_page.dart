@@ -4,6 +4,7 @@ import 'package:kitabugar/api/api_service.dart';
 import 'package:kitabugar/pages/xendit_payment_page.dart';
 import 'package:intl/intl.dart';
 import 'package:kitabugar/theme/text_styles.dart'; // Impor intl
+import 'package:kitabugar/pages/booking_details_page.dart';
 
 class SubscribePackagePage extends StatefulWidget {
   final int gymId;
@@ -32,7 +33,7 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
       print('Gym details received: $data');
 
       if (data['items'] != null) {
-        membershipOptions = data['items']['membership_options'] ?? [];
+        membershipOptions = data['items']['membership_option'] ?? [];
       } else {
         membershipOptions = [];
       }
@@ -80,8 +81,10 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: membershipOptions.map((option) {
-                  List<String> features =
-                      List<String>.from(json.decode(option['features']));
+                  List<String> features = List<String>.from(json.decode(
+                      option['features'] == "null"
+                          ? "[]"
+                          : option['features']));
 
                   // Format harga
                   String formattedPrice =
@@ -112,54 +115,64 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
     required List<String> benefits,
     required String imagePath,
   }) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.asset(
-                imagePath,
-                height: 150,
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BookingDetailsPage(),
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  imagePath,
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyles.heading2,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: TextStyles.body2,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  price,
-                  style: TextStyles.heading5,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  period,
-                  style: TextStyles.body2,
-                ),
-                const SizedBox(height: 8),
-                ...benefits.map((benefit) => Text('• $benefit')).toList(),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyles.heading2,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    subtitle,
+                    style: TextStyles.body2,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    price,
+                    style: TextStyles.heading5,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    period,
+                    style: TextStyles.body2,
+                  ),
+                  const SizedBox(height: 8),
+                  ...benefits.map((benefit) => Text('• $benefit')).toList(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

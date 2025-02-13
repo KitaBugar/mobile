@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gap/gap.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kitabugar/api/api_service.dart';
 import 'package:kitabugar/components/buttons/floating_bottom_navbar.dart';
-import 'package:kitabugar/pages/gym_detail_page.dart'; // Pastikan untuk mengimpor halaman GymDetailsPage
+import 'package:kitabugar/pages/gym_detail_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
 
@@ -151,15 +149,17 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 12),
-          // Looping gym cards with spacing
-          ..._gyms.map((gym) {
-            return Column(
-              children: [
-                _buildGymCard(gym),
-                const SizedBox(height: 14), // Jarak antar kartu
-              ],
-            );
-          }).toList(),
+          if (_gyms.isNotEmpty)
+            ..._gyms.map((gym) {
+              return Column(
+                children: [
+                  _buildGymCard(gym),
+                  const SizedBox(height: 14),
+                ],
+              );
+            }).toList(),
+          if (_gyms.isEmpty)
+            Center(child: Text('Tidak ada gym yang ditemukan.')),
         ],
       ),
     );
@@ -169,8 +169,8 @@ class _HomePageState extends State<HomePage> {
     String name = gym['name'] ?? 'No Name';
     String location = gym['address'] ?? 'No Address';
     String imageUrl = gym['image'] != null && gym['image'].isNotEmpty
-        ? gym['image'][0]['image_url']
-        : 'https://via.placeholder.com/200'; // Placeholder image
+        ? gym['image'][0]['image_url'].replaceFirst('localhost', '192.168.1.100') // Ganti dengan IP address Anda
+        : 'https://via.placeholder.com/200';
     String description = gym['description'] ?? 'No Description';
     String operatingHours = gym['operating_hours'] ?? 'N/A';
 
@@ -180,13 +180,13 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) => GymDetailPage(
-          gymName: name,
-          description: description,
-          imageUrl: imageUrl,
-          operatingHours: operatingHours,
-          address: location,
-          gymId: gym['id'], // Pastikan untuk mengirim gymId di sini
-        ),
+              gymName: name,
+              description: description,
+              imageUrl: imageUrl,
+              operatingHours: operatingHours,
+              address: location,
+              gymId: gym['id'],
+            ),
           ),
         );
       },
@@ -260,7 +260,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+ const SizedBox(height: 14),
                   Row(
                     children: [
                       const CircleAvatar(

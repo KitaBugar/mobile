@@ -19,7 +19,7 @@ class _MemberPageState extends State<MemberPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this); // Hanya satu tab
   }
 
   // Fungsi untuk menangani navigasi halaman
@@ -78,8 +78,7 @@ class _MemberPageState extends State<MemberPage>
           unselectedLabelColor: AppPallete.colorTextSecondary,
           indicatorColor: AppPallete.colorPrimary,
           tabs: const [
-            Tab(text: 'Member Aktif'),
-            Tab(text: 'Histori Member'),
+            Tab(text: 'Member Aktif'), // Hanya satu tab
           ],
         ),
       ),
@@ -87,9 +86,7 @@ class _MemberPageState extends State<MemberPage>
         controller: _tabController,
         children: [
           // Member Aktif Tab
-          _buildMemberList(isHistory: false),
-          // Histori Member Tab
-          _buildMemberList(isHistory: true),
+          _buildMemberList(),
         ],
       ),
       bottomNavigationBar: FloatingBottomNavBar(
@@ -99,17 +96,17 @@ class _MemberPageState extends State<MemberPage>
     );
   }
 
-  Widget _buildMemberList({required bool isHistory}) {
+  Widget _buildMemberList() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: 4,
+      itemCount: 4, // Ganti dengan jumlah tiket aktif yang sebenarnya
       itemBuilder: (context, index) {
         return _buildMemberCard(
-          gymName: isHistory ? 'Fitness First' : 'The Old House Gym',
+          gymName: 'The Old House Gym',
           location: 'Cirebon',
-          date: isHistory ? '1 - 7 Jan 2024' : '12 - 25 Feb 2025',
-          ticketId: isHistory ? 'HIST40235' : 'FIT30596',
-          ticketIdColor: isHistory ? Colors.red : AppPallete.colorPrimary,
+          date: '12 - 25 Feb 2025',
+          ticketId: 'FIT30596',
+          ticketIdColor: AppPallete.colorPrimary,
         );
       },
     );

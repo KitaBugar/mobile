@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart'; // Import file_picker
 import 'package:kitabugar/api/api_service.dart'; // Pastikan Anda memiliki ApiService
 import 'package:kitabugar/components/buttons/custom_button.dart'; // Pastikan file ini ada
 import 'package:kitabugar/pages/succes_payment_page.dart';
-// import 'package:kitabugar/pages/success_payment_page.dart'; // Pastikan file ini ada
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
+import 'package:permission_handler/permission_handler.dart'; // Import permission_handler
+import 'package:flutter/services.dart'; // Import untuk Clipboard
 
 class BookingDetailsPage extends StatefulWidget {
   const BookingDetailsPage({Key? key}) : super(key: key);
@@ -15,6 +17,8 @@ class BookingDetailsPage extends StatefulWidget {
 
 class _BookingDetailsPageState extends State<BookingDetailsPage> {
   final ApiService apiService = ApiService(); // Inisialisasi ApiService
+  String? uploadedFileName;
+  String? uploadedFilePath;
 
   @override
   Widget build(BuildContext context) {
@@ -65,19 +69,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   ),
                   const SizedBox(height: 24),
                   _buildDashedLine(),
-                  _buildDetailItem('Nama', 'Christian Weber'),
-                  _buildDetailItem('Nomor Telepon', '0338161271'),
-                  _buildDetailItem('Email', 'christian@gmail.com'),
-                  _buildDashedLine(),
-                  const SizedBox(height: 24),
                   _buildGymPackage(),
                   const SizedBox(height: 24),
                   _buildDashedLine(),
-                  _buildDetailItem('Booking ID', 'FIT30596'),
-                  _buildDetailItem('Subtotal', 'Rp 399.000'),
-                  _buildDetailItem('PPN 11%', 'Rp 43.890'),
-                  const SizedBox(height: 16),
                   _buildTotalPayment(),
+                  const SizedBox(height: 24),
+                  _buildBankTransferDetails(), // Tambahkan detail transfer bank
+                  const SizedBox(height: 24),
+                  _buildDashedLine(),
+                  _buildFileUpload(),
                 ],
               ),
             ),
@@ -109,31 +109,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppPallete.colorTextSecondary,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -214,6 +189,103 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
+  Widget _buildBankTransferDetails() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE1F2E0),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Transfer Bank',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Bank: BCA',
+            style: TextStyle(fontSize: 14),
+          ),
+          const Text(
+            'Nomor Rekening: 1234567890',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.copy),
+                onPressed: () {
+                  Clipboard.setData(const ClipboardData(text: '1234567890'));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nomor rekening disalin!')),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileUpload() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Upload File',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            // Meminta izin untuk akses penyimpanan
+            var status = await Permission.storage.status;
+            if (!status.isGranted) {
+              await Permission.storage.request();
+            }
+
+            // Menggunakan file picker untuk memilih file
+            FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+            if (result != null) {
+              setState(() {
+                uploadedFileName = result.files.single.name;
+                uploadedFilePath = result.files.single.path; // Simpan path file
+              });
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE1F2E0),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green),
+            ),
+            child: Center(
+              child: Text(
+                uploadedFileName ?? 'Tap to upload file',
+                style: TextStyle(
+                  color: uploadedFileName != null ? Colors.black : Colors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBottomButton(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -233,17 +305,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         onPressed: () async {
           // Kumpulkan data yang diperlukan untuk dikirim
           Map<String, dynamic> membershipData = {
-            'name': 'Christian Weber',
-            'phone': '0338161271',
-            'email': 'christian@gmail.com',
-            'bookingId': 'FIT30596',
-            'subtotal': 399000,
-            'tax': 43890,
             'total': 442890,
+            'uploadedFile':
+                uploadedFileName, // Tambahkan nama file yang di-upload
             // Tambahkan data lain yang diperlukan sesuai dengan API
           };
 
           try {
+            // Jika Anda perlu meng-upload file, Anda bisa menggunakan metode upload di ApiService
+            if (uploadedFilePath != null) {
+              await apiService.uploadFile(
+                  uploadedFilePath!); // Ganti dengan metode upload yang sesuai
+            }
             await apiService.subscribeMembership(membershipData);
             Navigator.push(
               context,
