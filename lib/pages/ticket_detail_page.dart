@@ -6,11 +6,13 @@ import 'package:ticket_widget/ticket_widget.dart';
 
 class TicketDetailPage extends StatelessWidget {
   final bool isExpired;
+  final Map<String, dynamic> membership;
 
   const TicketDetailPage({
-    Key? key,
+    super.key,
+    this.membership = const {},
     this.isExpired = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,15 +67,15 @@ class TicketDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Gym Name and Location
-                  const Text(
-                    'The Old House Gym',
+                  Text(
+                    membership["gym"] != null ? membership["gym"]["name"] : "-",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Row(
-                    children: const [
+                    children: [
                       Icon(
                         Icons.location_on,
                         color: AppPallete.colorPrimary,
@@ -81,7 +83,7 @@ class TicketDetailPage extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Cirebon',
+                        membership["gym"]["address"] ?? "-",
                         style: TextStyle(
                           color: AppPallete.colorPrimary,
                           fontSize: 14,
@@ -92,13 +94,15 @@ class TicketDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Booking Details
-                  _buildDetailRow('Booking ID', 'FIT30596'),
+                  _buildDetailRow('Booking ID', membership["card_number"]),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Started At', '14 November 2024'),
+                  _buildDetailRow(
+                      'Started At', membership["start_date_format"]),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Ended At', '14 Desember 2024'),
+                  _buildDetailRow('Ended At', membership["end_date_format"]),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Total Payment', 'Rp 220.890'),
+                  _buildDetailRow('Total Payment',
+                      'Rp ${membership["membership_option"]["price"]}'),
 
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -112,7 +116,7 @@ class TicketDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Rp. 299.000",
+                            "Rp. ${membership["membership_option"]["price"]}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -128,47 +132,51 @@ class TicketDetailPage extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //         BookingDetailsPage(), // Create your next page
-                          //   ),
-                          // );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                      if (membership["is_expired"] == true)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookingDetailsPage(
+                                  membership: membership,
+                                ), // Create your next page
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          child: const Text(
+                            'Expired',
+                            style: TextStyle(
+                              color: AppPallete.colorWhite,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          'Expired',
-                          style: TextStyle(
-                            color: AppPallete.colorWhite,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            if (isExpired) ...[
+            if (membership["is_expired"] == false) ...[
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CustomElevatedButton(
                   onPressed: () async {},
                   buttonText: 'Perpanjang Membeship',
-                  navigateTo: const BookingDetailsPage(),
+                  navigateTo: BookingDetailsPage(
+                    membership: membership,
+                  ),
                 ),
               ),
             ],

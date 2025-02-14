@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:kitabugar/components/buttons/primary_button.dart';
 import 'package:kitabugar/config/navigation_helper.dart';
@@ -63,11 +65,12 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
+        // log("RESPONSE => ${response.body}");
         // Jika login berhasil, simpan token
         final Map<String, dynamic> responseData = json.decode(response.body);
+        log("RESPONSE => ${responseData['items']}");
         String token =
-            responseData['token']; // Pastikan API mengembalikan token
-
+            responseData["items"]['token']; // Pastikan API mengembalikan token
         // Simpan token ke SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);
@@ -89,6 +92,7 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $error')),
       );
+      log("ERROR => $error");
     }
   }
 

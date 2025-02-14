@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart'; // Import file_picker
 import 'package:kitabugar/api/api_service.dart'; // Pastikan Anda memiliki ApiService
 import 'package:kitabugar/components/buttons/custom_button.dart'; // Pastikan file ini ada
-import 'package:kitabugar/pages/succes_payment_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
 import 'package:permission_handler/permission_handler.dart'; // Import permission_handler
 import 'package:flutter/services.dart'; // Import untuk Clipboard
 
 class BookingDetailsPage extends StatefulWidget {
-  const BookingDetailsPage({Key? key}) : super(key: key);
+  const BookingDetailsPage({Key? key, required this.membership})
+      : super(key: key);
+  final Map membership;
 
   @override
   _BookingDetailsPageState createState() => _BookingDetailsPageState();
@@ -135,11 +136,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
           const SizedBox(width: 16),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'The Old House Gym',
+                widget.membership["gym"]["name"],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -168,7 +169,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
+        children: [
           Text(
             'Total Payment',
             style: TextStyle(
@@ -177,7 +178,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
           Text(
-            'Rp 442.890',
+            'Rp ${widget.membership["membership_option"]["price"] ?? 0}',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -207,12 +208,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Bank: BCA',
+          Text(
+            'Bank: ${widget.membership["user"]["MethodPayment"]["name"] ?? "-"}',
             style: TextStyle(fontSize: 14),
           ),
-          const Text(
-            'Nomor Rekening: 1234567890',
+          Text(
+            'Nomor Rekening: ${widget.membership["user"]["MethodPayment"]["account_number"] ?? "-"}',
             style: TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -222,7 +223,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               IconButton(
                 icon: const Icon(Icons.copy),
                 onPressed: () {
-                  Clipboard.setData(const ClipboardData(text: '1234567890'));
+                  Clipboard.setData(ClipboardData(
+                      text: (widget.membership["user"]["MethodPayment"]
+                                  ["name"] ??
+                              "")
+                          .toString()));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Nomor rekening disalin!')),
                   );
@@ -303,36 +308,32 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       child: CustomElevatedButton(
         buttonText: 'Berlangganan Sekarang',
         onPressed: () async {
-          // Kumpulkan data yang diperlukan untuk dikirim
-          Map<String, dynamic> membershipData = {
-            'total': 442890,
-            'uploadedFile':
-                uploadedFileName, // Tambahkan nama file yang di-upload
-            // Tambahkan data lain yang diperlukan sesuai dengan API
-          };
-
-          try {
-            // Jika Anda perlu meng-upload file, Anda bisa menggunakan metode upload di ApiService
-            if (uploadedFilePath != null) {
-              await apiService.uploadFile(
-                  uploadedFilePath!); // Ganti dengan metode upload yang sesuai
+          if (uploadedFilePath != null) {
+            try {
+              print("asdad");
+              // var res = await apiService.subscribeMembership(
+              //     uploadedFilePath,
+              //     widget.membership["user"]["MethodPayment"]["id"],
+              //     widget.membership["gym"]["id"],
+              //     widget.membership["membership_option"]["id"]);
+              // if (res) {
+              //   Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => SuccessPaymentPage(
+              //         bookingId: widget.membership[""],
+              //       ),
+              //     ),
+              //   );
+              // }
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e')),
+              );
             }
-            await apiService.subscribeMembership(membershipData);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SuccessPaymentPage(
-                  bookingId: 'FIT30596',
-                ),
-              ),
-            );
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: $e')),
-            );
           }
+          // Kumpulkan data yang diperlukan untuk dikirim
         },
-        navigateTo: const SizedBox(),
       ),
     );
   }

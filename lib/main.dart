@@ -10,7 +10,8 @@ import 'package:kitabugar/pages/home_page.dart';
 import 'package:kitabugar/pages/signin_page.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Pastikan Flutter binding terinisialisasi
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Pastikan Flutter binding terinisialisasi
   await dotenv.load(); // Load .env sebelum menjalankan aplikasi
   runApp(const MyApp());
 }
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
         primarySwatch: Colors.blue, // Tambahkan warna utama
-        visualDensity: VisualDensity.adaptivePlatformDensity, // Agar UI lebih baik di semua perangkat
+        visualDensity: VisualDensity
+            .adaptivePlatformDensity, // Agar UI lebih baik di semua perangkat
       ),
       initialRoute: '/', // Route awal ke SplashScreen
       routes: {
@@ -37,7 +39,8 @@ class MyApp extends StatelessWidget {
         '/member': (context) => const MemberPage(),
         '/profile': (context) => const ProfilePage(),
         '/ticket-detail': (context) => const TicketDetailPage(),
-        '/onboarding': (context) => const OnboardingPage(), // Tambahkan rute untuk OnboardingPage
+        '/onboarding': (context) =>
+            const OnboardingPage(), // Tambahkan rute untuk OnboardingPage
       },
     );
   }
@@ -66,7 +69,9 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       Navigator.pushReplacementNamed(
         context,
-        token != null ? '/home' : '/onboarding', // Gunakan route sesuai kondisi login
+        token != null
+            ? '/home'
+            : '/onboarding', // Gunakan route sesuai kondisi login
       );
     }
   }

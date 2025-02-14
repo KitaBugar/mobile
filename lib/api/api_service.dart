@@ -43,6 +43,40 @@ class ApiService {
     }
   }
 
+  Future<List<dynamic>> getMembers() async {
+    final String? token = await _getToken(); // Ambil token
+
+    // Buat header dengan token jika ada
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token', // Menyertakan token
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/membership'),
+        headers: headers,
+      ); // Gunakan baseUrl
+
+      print('Response status: ${response.statusCode}'); // Log status kode
+      print('Response body: ${response.body}'); // Log isi respons
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Data received: $data'); // Log data yang diterima
+        return data['items'].isEmpty
+            ? []
+            : data['items']; // Mengembalikan daftar gym
+      } else {
+        throw Exception(
+            'Failed to load gyms: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('Error occurred: $e'); // Log kesalahan
+      throw Exception('Failed to load gyms: $e');
+    }
+  }
+
   // Metode untuk mengambil opsi keanggotaan berdasarkan gymId
   Future<Map<String, dynamic>> getMembershipOptions(int gymId) async {
     final String? token = await _getToken(); // Ambil token
@@ -92,24 +126,39 @@ class ApiService {
   }
 
   // Metode untuk melakukan POST ke /api/membership
-  Future<void> subscribeMembership(Map<String, dynamic> membershipData) async {
+  Future<bool> subscribeMembership(
+    String? path,
+    var paymentMethodId,
+    var gymId,
+    var membershipOptionId,
+  ) async {
     final String? token = await _getToken();
 
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
+    final sender =
+        http.MultipartRequest("POST", Uri.parse('$baseUrl/api/membership'));
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/membership'),
-      headers: headers,
-      body: json.encode(membershipData), // Mengirim data sebagai JSON
-    );
+    sender.fields["start_date"] = DateTime.now().toIso8601String();
+    sender.fields["method_payment_id"] = paymentMethodId;
+    sender.fields["gym_id"] = gymId;
+    sender.fields["membership_option_id"] = membershipOptionId;
+    sender.files
+        .add(await http.MultipartFile.fromPath("photo_transaction", path!));
+    sender.headers["Content-Type"] = "multipart/form-data";
+    sender.headers["Authorization"] = 'Bearer $token';
+    print("REQUEST => ${sender.fields}");
+
+    var response = await sender.send();
+
+    if (response.statusCode == 200) {
+      print("RESPONSE => ${response.request}");
+      return true;
+    }
 
     if (response.statusCode != 200) {
-      throw Exception(
-          'Failed to subscribe membership: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to subscribe membership: ${response.statusCode}');
     }
+
+    return false;
   }
 
   Future<void> uploadFile(String filePath) async {

@@ -120,7 +120,9 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingDetailsPage(),
+            builder: (context) => BookingDetailsPage(
+              membership: {},
+            ),
           ),
         );
       },

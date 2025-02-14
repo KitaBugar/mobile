@@ -298,7 +298,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           };
 
           try {
-            await apiService.subscribeMembership(membershipData);
+            await apiService.subscribeMembership("", "", "", "");
             Navigator.push(
               context,
               MaterialPageRoute(

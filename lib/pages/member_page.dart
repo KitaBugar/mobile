@@ -1,3 +1,4 @@
+import 'package:kitabugar/api/api_service.dart';
 import 'package:kitabugar/pages/home_page.dart';
 import 'package:kitabugar/pages/ticket_detail_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
@@ -15,11 +16,18 @@ class _MemberPageState extends State<MemberPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _currentIndex = 1; // 1 untuk Member tab di bottom navigation
+  List membership = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this); // Hanya satu tab
+    init();
+    _tabController = TabController(length: 1, vsync: this);
+  }
+
+  Future<void> init() async {
+    membership = await ApiService().getMembers();
+    setState(() {});
   }
 
   // Fungsi untuk menangani navigasi halaman
@@ -99,14 +107,16 @@ class _MemberPageState extends State<MemberPage>
   Widget _buildMemberList() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: 4, // Ganti dengan jumlah tiket aktif yang sebenarnya
+      itemCount: membership.length,
       itemBuilder: (context, index) {
+        var row = membership[index];
         return _buildMemberCard(
-          gymName: 'The Old House Gym',
-          location: 'Cirebon',
-          date: '12 - 25 Feb 2025',
-          ticketId: 'FIT30596',
+          gymName: row["gym"] != null ? row["gym"]["name"] : "-",
+          location: row["gym"]["address"] ?? "-",
+          date: "${row["start_date_format"]}-${row["end_date_format"]}",
+          ticketId: row["card_number"] ?? "",
           ticketIdColor: AppPallete.colorPrimary,
+          membership: row,
         );
       },
     );
@@ -118,6 +128,7 @@ class _MemberPageState extends State<MemberPage>
     required String date,
     required String ticketId,
     required Color ticketIdColor,
+    Map<String, dynamic> membership = const {},
   }) {
     return GestureDetector(
       onTap: () {
@@ -125,7 +136,9 @@ class _MemberPageState extends State<MemberPage>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => TicketDetailPage(),
+            builder: (context) => TicketDetailPage(
+              membership: membership,
+            ),
           ),
         );
       },

@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 // Komponen Button Kustom
 class CustomElevatedButton extends StatelessWidget {
   final String buttonText; // Teks yang ditampilkan pada tombol
-  final Widget navigateTo; // Halaman yang akan dinavigasi
+  final Widget? navigateTo; // Halaman yang akan dinavigasi
   final Color? backgroundColor; // Warna latar belakang tombol (opsional)
   final Color? textColor; // Warna teks (opsional)
 
   const CustomElevatedButton({
     Key? key,
     required this.buttonText,
-    required this.navigateTo,
+    this.navigateTo,
     this.backgroundColor,
-    this.textColor, required Future<Null> Function() onPressed,
+    this.textColor,
+    required Future<Null> Function() onPressed,
   }) : super(key: key);
 
   @override
@@ -24,10 +25,12 @@ class CustomElevatedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           // Navigasi ke halaman yang ditentukan
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => navigateTo),
-          );
+          if (navigateTo != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => navigateTo!),
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? AppPallete.colorPrimary,
