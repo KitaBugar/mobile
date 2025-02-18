@@ -6,11 +6,12 @@ import 'package:ticket_widget/ticket_widget.dart';
 
 class TicketDetailPage extends StatelessWidget {
   final bool isExpired;
-  final Map<String, dynamic> membership;
+  final Map<String, dynamic> membership, option;
 
   const TicketDetailPage({
     super.key,
     this.membership = const {},
+    this.option = const {},
     this.isExpired = true,
   });
 
@@ -139,8 +140,9 @@ class TicketDetailPage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BookingDetailsPage(
+                                  option: membership["membership_option"],
                                   membership: membership,
-                                ), // Create your next page
+                                ),
                               ),
                             );
                           },
@@ -172,11 +174,18 @@ class TicketDetailPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CustomElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    print(membership["gym"]);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => BookingDetailsPage(
+                          membership: membership["gym"],
+                          option: option,
+                        ),
+                      ),
+                    );
+                  },
                   buttonText: 'Perpanjang Membeship',
-                  navigateTo: BookingDetailsPage(
-                    membership: membership,
-                  ),
                 ),
               ),
             ],

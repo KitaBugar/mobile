@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart'; // Import file_picker
+import 'package:intl/intl.dart';
 import 'package:kitabugar/api/api_service.dart'; // Pastikan Anda memiliki ApiService
 import 'package:kitabugar/components/buttons/custom_button.dart'; // Pastikan file ini ada
+import 'package:kitabugar/pages/home_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
 import 'package:permission_handler/permission_handler.dart'; // Import permission_handler
 import 'package:flutter/services.dart'; // Import untuk Clipboard
 
 class BookingDetailsPage extends StatefulWidget {
-  const BookingDetailsPage({Key? key, required this.membership})
-      : super(key: key);
-  final Map membership;
+  const BookingDetailsPage({
+    Key? key,
+    required this.option,
+    required this.membership,
+  }) : super(key: key);
+  final Map membership, option;
 
   @override
   _BookingDetailsPageState createState() => _BookingDetailsPageState();
@@ -20,6 +25,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   final ApiService apiService = ApiService(); // Inisialisasi ApiService
   String? uploadedFileName;
   String? uploadedFilePath;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,54 +43,58 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: Padding(
+      body: loading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Booking Details',
-                      style: TextStyles.heading1
-                          .copyWith(color: AppPallete.colorTextPrimary)),
-                  const Text(
-                    'Cek terlebih dahulu detail bookingnya!',
-                    style: TextStyle(
-                      color: AppPallete.colorTextSecondary,
-                      fontSize: 14,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Booking Details',
+                            style: TextStyles.heading1
+                                .copyWith(color: AppPallete.colorTextPrimary)),
+                        const Text(
+                          'Cek terlebih dahulu detail bookingnya!',
+                          style: TextStyle(
+                            color: AppPallete.colorTextSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildDashedLine(),
+                        _buildGymPackage(),
+                        const SizedBox(height: 24),
+                        _buildDashedLine(),
+                        _buildTotalPayment(),
+                        const SizedBox(height: 24),
+                        _buildBankTransferDetails(), // Tambahkan detail transfer bank
+                        const SizedBox(height: 24),
+                        _buildDashedLine(),
+                        _buildFileUpload(),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  _buildDashedLine(),
-                  _buildGymPackage(),
-                  const SizedBox(height: 24),
-                  _buildDashedLine(),
-                  _buildTotalPayment(),
-                  const SizedBox(height: 24),
-                  _buildBankTransferDetails(), // Tambahkan detail transfer bank
-                  const SizedBox(height: 24),
-                  _buildDashedLine(),
-                  _buildFileUpload(),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
       bottomNavigationBar: _buildBottomButton(context),
     );
   }
@@ -140,14 +150,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.membership["gym"]["name"],
+                widget.membership["name"] ?? "",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'Card Paket Level Up',
+                widget.option["name"] ?? "",
                 style: TextStyle(
                   color: AppPallete.colorTextSecondary,
                   fontSize: 14,
@@ -178,7 +188,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
           Text(
-            'Rp ${widget.membership["membership_option"]["price"] ?? 0}',
+            'Rp ${NumberFormat().format(widget.option["price"] ?? 0)}',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -209,11 +219,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Bank: ${widget.membership["user"]["MethodPayment"]["name"] ?? "-"}',
+            'Bank: ${widget.membership["user"]["method_payment"]["name"] ?? "-"}',
             style: TextStyle(fontSize: 14),
           ),
           Text(
-            'Nomor Rekening: ${widget.membership["user"]["MethodPayment"]["account_number"] ?? "-"}',
+            'Nomor Rekening: ${widget.membership["user"]["method_payment"]["account_number"] ?? "-"}',
             style: TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 8),
@@ -223,11 +233,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               IconButton(
                 icon: const Icon(Icons.copy),
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(
-                      text: (widget.membership["user"]["MethodPayment"]
-                                  ["name"] ??
-                              "")
-                          .toString()));
+                  Clipboard.setData(
+                    ClipboardData(
+                      text: widget.membership["user"]["method_payment"]
+                              ["account_number"] ??
+                          "",
+                    ),
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Nomor rekening disalin!')),
                   );
@@ -310,22 +322,27 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         onPressed: () async {
           if (uploadedFilePath != null) {
             try {
-              print("asdad");
-              // var res = await apiService.subscribeMembership(
-              //     uploadedFilePath,
-              //     widget.membership["user"]["MethodPayment"]["id"],
-              //     widget.membership["gym"]["id"],
-              //     widget.membership["membership_option"]["id"]);
-              // if (res) {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //       builder: (context) => SuccessPaymentPage(
-              //         bookingId: widget.membership[""],
-              //       ),
-              //     ),
-              //   );
-              // }
+              setState(() {
+                loading = true;
+              });
+              var res = await apiService.subscribeMembership(
+                uploadedFilePath!,
+                widget.membership["user"]["method_payment"]["id"],
+                widget.membership["id"],
+                widget.option["id"],
+              );
+              setState(() {
+                loading = false;
+              });
+              if (context.mounted && res) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                  (e) => false,
+                );
+              }
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: $e')),

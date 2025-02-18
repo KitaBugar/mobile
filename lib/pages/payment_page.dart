@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kitabugar/api/api_service.dart'; // Pastikan Anda memiliki ApiService
 import 'package:kitabugar/components/buttons/custom_button.dart'; // Pastikan file ini ada
-import 'package:kitabugar/pages/succes_payment_page.dart';
 import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:kitabugar/theme/text_styles.dart';
 import 'package:image_picker/image_picker.dart'; // Untuk memilih gambar
@@ -286,27 +285,27 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         buttonText: 'Berlangganan Sekarang',
         onPressed: () async {
           // Kumpulkan data yang diperlukan untuk dikirim
-          Map<String, dynamic> membershipData = {
-            'name': 'Christian Weber',
-            'phone': '0338161271',
-            'email': 'christian@gmail.com',
-            'bookingId': 'FIT30596',
-            'subtotal': 399000,
-            'tax': 43890,
-            'total': 442890,
-            // Tambahkan data lain yang diperlukan sesuai dengan API
-          };
+          // Map<String, dynamic> membershipData = {
+          //   'name': 'Christian Weber',
+          //   'phone': '0338161271',
+          //   'email': 'christian@gmail.com',
+          //   'bookingId': 'FIT30596',
+          //   'subtotal': 399000,
+          //   'tax': 43890,
+          //   'total': 442890,
+          //   // Tambahkan data lain yang diperlukan sesuai dengan API
+          // };
 
           try {
             await apiService.subscribeMembership("", "", "", "");
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SuccessPaymentPage(
-                  bookingId: 'FIT30596',
-                ),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => const SuccessPaymentPage(
+            //       bookingId: 'FIT30596',
+            //     ),
+            //   ),
+            // );
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error: $e')),

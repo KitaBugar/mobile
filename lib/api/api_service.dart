@@ -1,11 +1,17 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Impor dotenv
+import 'package:intl/intl.dart';
+import 'package:kitabugar/config/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Impor SharedPreferences
 
 class ApiService {
   final String baseUrl = dotenv.env['BASE_URL'] ??
       'http://localhost:8080'; // Ambil BASE_URL dari .env
+
+  final Dio dio = Dio();
 
   // Metode untuk mengambil token dari SharedPreferences
   Future<String?> _getToken() async {
@@ -127,37 +133,68 @@ class ApiService {
 
   // Metode untuk melakukan POST ke /api/membership
   Future<bool> subscribeMembership(
-    String? path,
+    String path,
     var paymentMethodId,
     var gymId,
     var membershipOptionId,
   ) async {
     final String? token = await _getToken();
 
-    final sender =
-        http.MultipartRequest("POST", Uri.parse('$baseUrl/api/membership'));
+    Map<String, dynamic> request = {
+      "membership_option_id": membershipOptionId,
+      "gym_id": gymId,
+      "method_payment_id": paymentMethodId,
+      "start_date": DateFormat("yyyy-MM-dd").format(DateTime.now()),
+      "photo_transaction": await MultipartFile.fromFile(path),
+    };
 
-    sender.fields["start_date"] = DateTime.now().toIso8601String();
-    sender.fields["method_payment_id"] = paymentMethodId;
-    sender.fields["gym_id"] = gymId;
-    sender.fields["membership_option_id"] = membershipOptionId;
-    sender.files
-        .add(await http.MultipartFile.fromPath("photo_transaction", path!));
-    sender.headers["Content-Type"] = "multipart/form-data";
-    sender.headers["Authorization"] = 'Bearer $token';
-    print("REQUEST => ${sender.fields}");
+    print(request);
 
-    var response = await sender.send();
+    try {
+      var response = await dio.post(
+        "$baseUrl/api/membership",
+        data: FormData.fromMap(request),
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
 
-    if (response.statusCode == 200) {
-      print("RESPONSE => ${response.request}");
-      return true;
+      if (response.statusCode == 201) {
+        log("RESPONSE => ${response.data}");
+        return true;
+      }
+    } on DioException catch (e) {
+      log("ERROR => ${e.message}");
     }
+    return false;
+  }
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to subscribe membership: ${response.statusCode}');
+  Future<bool> updateProfile(Map<String, dynamic> request) async {
+    try {
+      print(storage.token);
+      var response = await dio.put(
+        "$baseUrl/api/user",
+        data: FormData.fromMap(request),
+        options: Options(
+          headers: {
+            "Authorization": "Bearer ${storage.token}",
+            "Content-Type": "multipart/form-data",
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        log("RESPONSE => ${response.data}");
+        storage.user = response.data;
+
+        return true;
+      }
+    } on DioException catch (e) {
+      log("ERROR => ${e.message}");
     }
-
     return false;
   }
 

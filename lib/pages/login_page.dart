@@ -74,6 +74,8 @@ class _LoginPageState extends State<LoginPage> {
         // Simpan token ke SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);
+        await prefs.setString(
+            'user', jsonEncode(responseData["items"]["user"]));
 
         // Navigasi ke halaman Home
         Navigator.pushReplacement(

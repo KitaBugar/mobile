@@ -8,6 +8,7 @@ class CustomElevatedButton extends StatelessWidget {
   final Widget? navigateTo; // Halaman yang akan dinavigasi
   final Color? backgroundColor; // Warna latar belakang tombol (opsional)
   final Color? textColor; // Warna teks (opsional)
+  final Future<Null> Function() onPressed;
 
   const CustomElevatedButton({
     Key? key,
@@ -15,7 +16,7 @@ class CustomElevatedButton extends StatelessWidget {
     this.navigateTo,
     this.backgroundColor,
     this.textColor,
-    required Future<Null> Function() onPressed,
+    required this.onPressed,
   }) : super(key: key);
 
   @override
@@ -23,7 +24,9 @@ class CustomElevatedButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
+          await onPressed();
+
           // Navigasi ke halaman yang ditentukan
           if (navigateTo != null) {
             Navigator.push(

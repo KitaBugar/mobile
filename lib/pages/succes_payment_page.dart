@@ -4,11 +4,11 @@ import 'package:kitabugar/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class SuccessPaymentPage extends StatelessWidget {
-  final String bookingId;
+  final Map booking;
 
   const SuccessPaymentPage({
     Key? key,
-    required this.bookingId,
+    required this.booking,
   }) : super(key: key);
 
   @override
@@ -67,7 +67,7 @@ class SuccessPaymentPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Booking ID: $bookingId',
+                      'Booking ID:',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

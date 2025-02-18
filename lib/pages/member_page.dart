@@ -27,6 +27,7 @@ class _MemberPageState extends State<MemberPage>
 
   Future<void> init() async {
     membership = await ApiService().getMembers();
+    print(membership);
     setState(() {});
   }
 
@@ -114,7 +115,7 @@ class _MemberPageState extends State<MemberPage>
           gymName: row["gym"] != null ? row["gym"]["name"] : "-",
           location: row["gym"]["address"] ?? "-",
           date: "${row["start_date_format"]}-${row["end_date_format"]}",
-          ticketId: row["card_number"] ?? "",
+          ticketId: row["card_number"],
           ticketIdColor: AppPallete.colorPrimary,
           membership: row,
         );
@@ -126,7 +127,7 @@ class _MemberPageState extends State<MemberPage>
     required String gymName,
     required String location,
     required String date,
-    required String ticketId,
+    required String? ticketId,
     required Color ticketIdColor,
     Map<String, dynamic> membership = const {},
   }) {
@@ -138,6 +139,7 @@ class _MemberPageState extends State<MemberPage>
           MaterialPageRoute(
             builder: (context) => TicketDetailPage(
               membership: membership,
+              option: membership["membership_option"],
             ),
           ),
         );
@@ -206,34 +208,35 @@ class _MemberPageState extends State<MemberPage>
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: ticketIdColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.confirmation_number_outlined,
-                          size: 16,
-                          color: AppPallete.colorPrimary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          ticketId,
-                          style: TextStyle(
-                            color: ticketIdColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                  if (ticketId != "")
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: ticketIdColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.confirmation_number_outlined,
+                            size: 16,
+                            color: AppPallete.colorPrimary,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            ticketId ?? "",
+                            style: TextStyle(
+                              color: ticketIdColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],

@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:kitabugar/api/api_service.dart';
+import 'package:kitabugar/pages/booking_details_page.dart';
 import 'package:kitabugar/pages/xendit_payment_page.dart';
 import 'package:intl/intl.dart';
 import 'package:kitabugar/theme/text_styles.dart'; // Impor intl
-import 'package:kitabugar/pages/booking_details_page.dart';
 
 class SubscribePackagePage extends StatefulWidget {
   final int gymId;
@@ -18,6 +17,7 @@ class SubscribePackagePage extends StatefulWidget {
 class _SubscribePackagePageState extends State<SubscribePackagePage> {
   final ApiService apiService = ApiService();
   List<dynamic> membershipOptions = [];
+  Map? gym;
   bool isLoading = true;
 
   @override
@@ -33,6 +33,7 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
       print('Gym details received: $data');
 
       if (data['items'] != null) {
+        gym = data["items"];
         membershipOptions = data['items']['membership_option'] ?? [];
       } else {
         membershipOptions = [];
@@ -81,10 +82,11 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: membershipOptions.map((option) {
-                  List<String> features = List<String>.from(json.decode(
-                      option['features'] == "null"
-                          ? "[]"
-                          : option['features']));
+                  List<String> features = List<String>.from(
+                    option['features'].map(
+                      (e) => e.toString(),
+                    ),
+                  );
 
                   // Format harga
                   String formattedPrice =
@@ -93,6 +95,7 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
 
                   return _buildPackageCard(
                     context: context,
+                    option: option,
                     title: option['name'],
                     subtitle: option['description'],
                     price: formattedPrice, // Gunakan harga yang diformat
@@ -107,6 +110,7 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
   }
 
   Widget _buildPackageCard({
+    required Map option,
     required BuildContext context,
     required String title,
     required String subtitle,
@@ -120,8 +124,9 @@ class _SubscribePackagePageState extends State<SubscribePackagePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingDetailsPage(
-              membership: {},
+            builder: (_) => BookingDetailsPage(
+              membership: gym!,
+              option: option,
             ),
           ),
         );
